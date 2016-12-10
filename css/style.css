@@ -1,18 +1,24 @@
-* {outline : 1px solid purple; }
+/** {outline : 1px solid purple; }*/
 
 body {
-  background: #c55;
+  background: #477148;
   text-align: center;
 }
 
+h1 {
+  font-size: 40px;
+  font-weight: bold;
+}
 ul {
-  width: 400px;
-  margin: 25px auto;
+  width: 800px;
+  margin: 5px auto;
   text-align: center;
+  list-style: none;
 }
 
 li {
   display: inline-block;
+  border: 2px solid black;
 }
 
 .card {
@@ -21,16 +27,34 @@ li {
   background-color: #fff;
   border: 1px solid #695d39;
   border-radius: .5em;
-  box-shadow: -.25em .25em .5em -.25em #000;
   font-family: 'Times', serif;
   line-height: 1em;
-  padding-top: .25em;
+  /*padding-top: .25em;
   padding-left: .1em;
-  letter-spacing: -.2em;
+  letter-spacing: -.2em;*/
 }
 
 .status {
   margin: 0 auto;
   width: 400px;
-  height: 50px;
+}
+
+.selection {
+  padding: 2px;
+  margin: 2px;
+  cursor: default;
+}
+
+#newGame {
+  padding: 2px;
+  margin: 2px;
+  cursor: default;
+}
+
+#bet {
+  width: 50px;
+}
+
+#betLi {
+  border: none;
 }
