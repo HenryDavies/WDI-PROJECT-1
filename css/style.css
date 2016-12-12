@@ -10,7 +10,7 @@ h1 {
   font-weight: bold;
 }
 ul {
-  width: 800px;
+  width: 600px;
   margin: 5px auto;
   text-align: center;
   list-style: none;
@@ -24,25 +24,28 @@ li {
 .card {
   height: 8.85em;
   width: 6.4em;
-  background-color: #fff;
+  background: #fff url('../images/card-set.png') no-repeat;
+  background-size: 1300% 400%;
   border: 1px solid #695d39;
-  border-radius: .5em;
+  border-radius: 0.5em;
   font-family: 'Times', serif;
+  text-align: left;
   line-height: 1em;
-  /*padding-top: .25em;
+  padding-top: .25em;
   padding-left: .1em;
-  letter-spacing: -.2em;*/
+  letter-spacing: -.2em;
 }
 
 .status {
   margin: 0 auto;
-  width: 400px;
+  width: 600px;
 }
 
-.selection {
+.selection, #deal {
   padding: 2px;
   margin: 2px;
   cursor: default;
+  width: 75px;
 }
 
 #newGame {
@@ -57,4 +60,44 @@ li {
 
 #betLi {
   border: none;
+}
+
+main {
+  height: 320px;
+}
+
+.playerCards, .playerCardsSplit {
+  display: inline-block;
+}
+
+.playerCards, .playerCardsSplit, .dealerCards {
+  margin: 5px auto;
+}
+
+/* SUITS */
+.c { background-position-y: 0;       color: #000; }
+.d { background-position-y: -9.1em; color: #890000; }
+.s { background-position-y: -18.2em; color: #000; }
+.h { background-position-y: -27.3em;    color: #890000; }
+
+/* RANKS */
+.rankA  { background-position-x: 0; }
+.rank2  { background-position-x: -6.5em; }
+.rank3  { background-position-x: -13em; }
+.rank4  { background-position-x: -19.5em; }
+.rank5  { background-position-x: -26em; }
+.rank6  { background-position-x: -32.5em; }
+.rank7  { background-position-x: -39em; }
+.rank8  { background-position-x: -45.5em; }
+.rank9  { background-position-x: -52em; }
+.rank10 { background-position-x: -58.5em;}
+.rankJ  { background-position-x: -65em; }
+.rankQ  { background-position-x: -71.5em; }
+.rankK  { background-position-x: -78em; }
+
+/* Hidden dealer card */
+.holeCard {
+  background: url('https://s-media-cache-ak0.pinimg.com/236x/a4/77/8a/a4778a31909f959501cc180b8874d164.jpg') no-repeat;
+  background-size: cover;
+
 }

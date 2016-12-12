@@ -1,25 +1,38 @@
 /*
 TO DO
-- card faces
+- HOW DO I DEAL ONE CARD AFTER THE OTHER? (without messing up rest of code)
 - overlap cards and then reduce width when splitting
+- Add timer to cards being dealt
+- Add shuffle animation
+- MAYBE add insurance
 */
 
-var rank = ['A',2,3,4,5,6,7,8,9,10,'J','Q','K'];
-var suit = ['s','h','c','d'];
+var Bj = Bj || {};
+
+
+var ranks = ['A',2,3,4,5,6,7,8,9,10,'J','Q','K'];
+var suits = ['s','h','c','d'];
+var htmlSuits = ['&spades;','&hearts;','&clubs;','&diams;'];
 var deck = [];
-var numberOfDecks = 4;
+var numberOfDecks = 1;
 var playerCards = [], dealerCards = [], playerCardsSplit = [];
-var tens = ['J','Q','K'];
-var highCards = ['J','Q','K','A'];
 var stand = true;
 var cardCount = 0;
-var sum, newCard, cardsInShoe, decksLeft, shuffledDeck, aceCounter, balance, betSize, bust, blackjack, double, split;
+var sum, newCard, cardsInShoe, decksLeft, shuffledDeck, aceCounter, balance, betSize, bust, bustSplit, blackjack, double, split;
+
+
+function Card(rank, suit, htmlSuit) {
+  this.rank = rank;
+  this.suit = suit;
+  this.score = (!isNaN(rank))? rank : ((rank === 'A')? 1 : 10);
+  this.htmlSuit = htmlSuit;
+}
 
 function makeDeck() {
-  $(rank).each(function(indexR, valueR) {
-    $(suit).each(function(indexS, valueS) {
+  $(ranks).each(function(indexR) {
+    $(suits).each(function(indexS) {
       for (var i = 0; i < numberOfDecks; i++) {
-        deck.push(valueR + suit[indexS]);
+        deck.push(new Card(ranks[indexR], suits[indexS], htmlSuits[indexS]));
       }
     });
   });
@@ -41,24 +54,23 @@ function newGame() {
 
 function addButtonsAndListeners() {
   if ($('.choice').is(':empty')){
-    $('.choice').append('<li class="selection" id="playNextHand">Deal</li>');
+    $('.choice').append('<li id="deal">Deal</li>');
     $('.choice').append('<li class="selection">Hit</li><li class="selection">Stand</li><li class="selection">Double</li><li class="selection">Split</li>');
     $('.betting').append('<li id="betLi">Bet: <input id="bet" type="number" value="10"></li>');
     updateBalance(0);
-    $('#playNextHand').click(playRound);
+    $('#deal').click(deal);
     $('.selection').click(gamePlay);
   }
 }
 
-function playRound() {
+function deal() {
   if (stand || bust || blackjack) {
     $('.playerCardsSplit').remove();
     bet();
     resetCards();
-    dealInitialCards();
-    stand = bust = blackjack = double = split = false;
-    checkForBlackjack();
-    choice(playerCards);
+    $('.status').text('Dealing cards...');
+    stand = bust = blackjack = double = split = bustSplit = false;
+    dealInitialCards(checkForBlackjack);
   } else alert('You must finish the current hand first.');
 }
 
@@ -74,7 +86,7 @@ function gamePlay() {
     } else if ($(this).text() === 'Split') {
       splitLogic();
     }
-  } else if (split && stand) {
+  } else if ((split && stand && !bustSplit) || (split && bust && !bustSplit)) {
     if ($(this).text() === 'Hit') {
       hitLogic(playerCardsSplit);
     } else if ($(this).text() === 'Stand') {
@@ -101,15 +113,29 @@ function resetCards() {
   dealerCards = [];
   playerCardsSplit =[];
   $('.card').remove();
-  $('.status').text('');
+  $('.status').text('Welcome to Blackjack');
 }
 
-function dealInitialCards() {
-  dealCard(playerCards);
-  dealCard(dealerCards);
-  dealCard(playerCards);
-  dealCard(dealerCards);
+function dealInitialCards(callback) {
+  var i = 0;
+  var interval = setInterval(dealCards, 1000);
+  function dealCards() {
+    dealCard(playerCards);
+    dealCard(dealerCards);
+    i++;
+    if (i > 1) {
+      clearInterval(interval);
+      callback();
+    }
+  }
 }
+
+// function dealInitialCards() {
+//   dealCard(playerCards);
+//   dealCard(dealerCards);
+//   dealCard(playerCards);
+//   dealCard(dealerCards);
+// }
 
 function dealCard(array) {
   if (cardsInShoe === 0) {
@@ -118,16 +144,19 @@ function dealCard(array) {
   }
   newCard = shuffledDeck.shift();
   array.push(newCard);
-  if (parseInt(newCard) >= 2 && parseInt(newCard) < 7) cardCount++;
-  if (parseInt(newCard) === 10 || highCards.indexOf(newCard.charAt(0)) !== -1) cardCount--;
+  if (newCard.score >= 2 && newCard.score < 7) cardCount++;
+  if (newCard.score === 10) cardCount--;
   cardsInShoe--;
   updateCounter();
   if (array === playerCards) {
-    $('.playerCards').append('<li class="card" id=' + newCard + '>' + newCard + '</li>');
+    $(cardHTML(newCard)).appendTo($('.playerCards')).hide().fadeIn(300);
   } else if (array === dealerCards) {
-    $('.dealerCards').append('<li class="card">' + newCard + '</li>');
+    if (array.length === 1) {
+      $(cardHTML(newCard, 'holeCard')).appendTo($('.dealerCards')).hide().fadeIn(300);
+      hideDealerCard();
+    } else     $(cardHTML(newCard)).appendTo($('.dealerCards')).hide().fadeIn(300);
   } else if (array === playerCardsSplit) {
-    $('.playerCardsSplit').append('<li class="card">' + newCard + '</li>');
+    $(cardHTML(newCard)).appendTo($('.playerCardsSplit')).hide().fadeIn(300);
   }
 }
 
@@ -135,15 +164,14 @@ function sumArray(array) {
   sum = 0;
   aceCounter = 0;
   $(array).each(function(index, value) {
-    if (tens.indexOf(value.charAt(0)) !== -1) value = 10;
-    if (value.toString().includes('A')) {
+    if (value.rank === 'A') {
       aceCounter++;
-      value = 11;
+      value.score = 11;
     }
-    sum += parseInt(value);
+    sum += value.score;
   });
   for (var i=1  ; i <= aceCounter; i++) {
-    if (sum > 21 && aceCounter >=i) sum -= 10;
+    if (sum > 21 && aceCounter >= i) sum -= 10;
   }
   return sum;
 }
@@ -151,23 +179,27 @@ function sumArray(array) {
 function checkForBlackjack() {
   if (sumArray(dealerCards) === 21 && sumArray(playerCards) !== 21) {
     blackjack = true;
+    showDealerCard();
     $('.status').text('Unlucky! Dealer has blackjack - you lose this hand.');
   } else if (sumArray(dealerCards) === 21 && sumArray(playerCards) === 21) {
     blackjack = true;
+    showDealerCard();
     $('.status').text('Both you and the dealer have blackjack! It\'s a draw!');
     updateBalance(betSize);
   } else if (sumArray(dealerCards) !== 21 && sumArray(playerCards) === 21) {
     blackjack = true;
+    showDealerCard();
     $('.status').text('Blackjack! You win this hand.');
     updateBalance(2.5 * betSize);
   }
+  choice(playerCards);
 }
 
 function choice(array, round = 'first') {
   if (split) {
-    $('.status').text('Your ' + round + ' cards are ' + array.join() + ' - a total of ' + sumArray(array) + '. What would you like to do?');
+    $('.status').text('Your ' + round + ' cards are ' + returnCards(array) + ' - a total of ' + sumArray(array) + '. What would you like to do?');
   } else if (!blackjack) {
-    $('.status').text('Your cards are ' + array.join() + ' - a total of ' + sumArray(array) + '. What would you like to do?');
+    $('.status').text('Your cards are ' + returnCards(array) + ' - a total of ' + sumArray(array) + '. What would you like to do?');
   }
 }
 
@@ -181,25 +213,30 @@ function hitLogic(array) {
 }
 
 function busted(array) {
-  $('.status').text('BUST! Your cards are ' + array.join() + ' - a total of ' + sumArray(array) + '.');
-  bust = true;
+  $('.status').text('BUST! Your cards are ' + returnCards(array) + ' - a total of ' + sumArray(array) + '.');
+  if (array === playerCards) {
+    bust = true;
+  } else bustSplit = true;
+  if (!split || (split && bustSplit)) {
+    dealerPlays();
+    determineWinner(playerCards);
+    if (bustSplit) determineWinner(playerCardsSplit);
+  } else if (split === true && array === playerCards) {
+    choice(playerCardsSplit, 'second');
+  }
 }
 
 function standLogic(array) {
   stand = true;
   if (!split) {
-    while (sumArray(dealerCards) < 17) {
-      dealCard(dealerCards);
-    }
+    dealerPlays();
     determineWinner(array);
   }
   if (split === true && array === playerCards) {
     choice(playerCardsSplit, 'second');
   }
   if (split === true && array === playerCardsSplit) {
-    while (sumArray(dealerCards) < 17) {
-      dealCard(dealerCards);
-    }
+    dealerPlays();
     determineWinner(playerCards, 'First hand: ');
     determineWinner(playerCardsSplit, '<br />Second hand: ');
   }
@@ -217,7 +254,7 @@ function doubleLogic(array) {
 }
 
 function splitLogic() {
-  if (playerCards[0].slice(0,-1) === playerCards[1].slice(0,-1)) {
+  if ((playerCards[0].score === playerCards[1].score) && playerCards.length === 2) {
     split = true;
     updateBalance(-betSize);
     $('.playerCards').after('<ul class="playerCardsSplit" id="splitBoard"></ul>');
@@ -230,7 +267,9 @@ function splitLogic() {
 
 function determineWinner(array, hand = '') {
   if (array !== playerCardsSplit) $('.status').text('');
-  if (sumArray(array) > sumArray(dealerCards) || sumArray(dealerCards) > 21) {
+  if (sumArray(array) > 21) {
+    $('.status').append(hand + 'Unlucky! You lose this hand. The dealer\'s ' + sumArray(dealerCards) + ' beats your busted ' + sumArray(array) + '. ');
+  } else if (sumArray(array) > sumArray(dealerCards) || sumArray(dealerCards) > 21) {
     $('.status').append(hand + 'Congratulations! You win this hand - your ' + sumArray(array) + ' beats the dealer\'s ' + sumArray(dealerCards) + '. ');
     updateBalance(betSize*2);
   } else if (sumArray(array) === sumArray(dealerCards)) {
@@ -251,11 +290,37 @@ function updateCounter() {
 function updateBalance(x) {
   if (!double) balance = balance + x;
   else balance = balance + 2*x;
-  console.log(x);
   $('.balance').text('Bank balance: ' + balance);
 }
 
 function bet() {
   betSize = parseInt($('#bet').val());
   updateBalance(-betSize);
+}
+
+function returnCards(array) {
+  var newArray = array.map(function(value) {
+    return value.rank.toString().concat(value.suit);
+  });
+  return newArray.join();
+}
+
+function cardHTML(x, hiddenClass = '') {
+  return $('<li class="card rank' + x.rank + ' ' + x.suit + ' ' + hiddenClass + '">' + newCard.rank + '<br />' + x.htmlSuit + '</li>');
+}
+
+function hideDealerCard() {
+  $('.holeCard').css('color', 'transparent');
+}
+
+function showDealerCard() {
+  $('.holeCard').css('color', '');
+  $('.holeCard').removeClass('holeCard');
+}
+
+function dealerPlays() {
+  showDealerCard();
+  while (sumArray(dealerCards) < 17) {
+    dealCard(dealerCards);
+  }
 }
