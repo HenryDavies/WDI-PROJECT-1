@@ -10,7 +10,7 @@ h1 {
   font-weight: bold;
 }
 ul {
-  width: 600px;
+  min-width: 600px;
   margin: 5px auto;
   text-align: center;
   list-style: none;
@@ -63,7 +63,7 @@ li {
 }
 
 main {
-  height: 320px;
+  min-height: 320px;
 }
 
 .playerCards, .playerCardsSplit {
@@ -99,5 +99,4 @@ main {
 .holeCard {
   background: url('https://s-media-cache-ak0.pinimg.com/236x/a4/77/8a/a4778a31909f959501cc180b8874d164.jpg') no-repeat;
   background-size: cover;
-
 }
