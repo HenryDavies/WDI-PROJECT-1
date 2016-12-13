@@ -69,7 +69,7 @@ Bj.makeDeck = function() {
   var ranks = ['A',2,3,4,5,6,7,8,9,10,'J','Q','K'];
   var suits = ['s','h','c','d'];
   var htmlSuits = ['&spades;','&hearts;','&clubs;','&diams;'];
-  var numberOfDecks = 1;
+  var numberOfDecks = 4;
   $(ranks).each(function(indexR) {
     $(suits).each(function(indexS) {
       for (var i = 0; i < numberOfDecks; i++) {
