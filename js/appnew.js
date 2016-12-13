@@ -2,6 +2,7 @@ var Bj = Bj || {};
 
 $(function() {
   $('#newGame').click(Bj.newGame);
+  Bj.showCount = false;
 });
 
 Bj.newGame = function() {
@@ -68,7 +69,7 @@ Bj.makeDeck = function() {
   var ranks = ['A',2,3,4,5,6,7,8,9,10,'J','Q','K'];
   var suits = ['s','h','c','d'];
   var htmlSuits = ['&spades;','&hearts;','&clubs;','&diams;'];
-  var numberOfDecks = 4;
+  var numberOfDecks = 1;
   $(ranks).each(function(indexR) {
     $(suits).each(function(indexS) {
       for (var i = 0; i < numberOfDecks; i++) {
@@ -114,7 +115,8 @@ Bj.addButtonsAndListeners = function() {
 Bj.displayCounter = function() {
   Bj.showCount = !Bj.showCount;
   if (Bj.showCount) {
-    $('#trueCount p').text((Bj.cardCount/Bj.decksLeft).toFixed(1)).css('font-size', '50px');
+    if (Bj.cardCount) $('#trueCount p').text((Bj.cardCount/Bj.decksLeft).toFixed(1)).css('font-size', '50px');
+    else $('#trueCount p').text(0).css('font-size', '50px');
   } else {
     $('#trueCount p').text('Show/hide card count').css('font-size', '16px');
   }
@@ -188,10 +190,9 @@ Bj.updateCounters = function() {
   }
   Bj.cardsInShoe--;
   Bj.decksLeft = (Bj.cardsInShoe/52);
-  // $('#cardsInShoe').text('Cards left in shoe: ' + Bj.cardsInShoe + ' (' + Bj.decksLeft.toFixed(1) + ' decks).');
-  // $('#count').text('Card count: ' + Bj.cardCount);
   if (Bj.showCount) {
-    $('#trueCount p').text((Bj.cardCount/Bj.decksLeft).toFixed(1));
+    if (Bj.cardCount) $('#trueCount p').text((Bj.cardCount/Bj.decksLeft).toFixed(1));
+    else $('#trueCount p').text(0);
   }
 };
 
@@ -309,11 +310,13 @@ Bj.showDealerCard = function() {
   $('.holeCard').removeClass('holeCard');
   if (Bj.dealerCards[0].score >= 2 && Bj.dealerCards[0].score < 7) Bj.cardCount++;
   if (Bj.dealerCards[0].score === 10 || Bj.dealerCards[0].score === 11) Bj.cardCount--;
-  // $('#count').text('Card count: ' + Bj.cardCount);
   if (Bj.showCount) {
-    $('#trueCount p').text((Bj.cardCount/Bj.decksLeft).toFixed(1));
+    if (Bj.cardCount) {
+      $('#trueCount p').text((Bj.cardCount/Bj.decksLeft).toFixed(1));
+    } else $('#trueCount p').text(0);
   }
 };
+
 
 Bj.determineWinner = function(array, hand = '') {
   if (array !== Bj.playerCardsSplit) $('.status').text('');
