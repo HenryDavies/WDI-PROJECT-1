@@ -1,6 +1,6 @@
 // TO DO
 // AUDIO
-// DEALING
+// vertical height jerks up and down
 
 // problems
 // 1. can still hit while in second split hand after stand
@@ -89,7 +89,6 @@ Bj.makeDeck = function() {
   });
   Bj.cardsInShoe = numberOfDecks * 52;
   Bj.cardCount = 0;
-  // updateCounter();
   Bj.shuffleDeck();
 };
 
@@ -104,6 +103,11 @@ Bj.shuffleDeck = function() {
   Bj.shuffledDeck = Bj.deck;
 };
 
+Bj.addDeckToTable = function() {
+  $(Bj.shuffledDeck).each(function(index, value) {
+    $(Bj.cardHTML(value)).appendTo($('#shoe')).css({'position': 'absolute','top': '7vh','left': '35vh'}).addClass('shoeCards').removeClass('card');
+  });
+};
 
 Bj.addButtonsAndListeners = function() {
   if ($('.choice').is(':empty')){
@@ -149,12 +153,6 @@ Bj.dealInitialCards = function(callback) {
       callback();
     }
   }, 500);
-};
-
-Bj.addDeckToTable = function() {
-  $(Bj.shuffledDeck).each(function(index, value) {
-    $(Bj.cardHTML(value)).appendTo($('#shoe')).css({'position': 'absolute','top': 0,'left': 0.1*index}).addClass('shoeCards').removeClass('card');
-  });
 };
 
 // Bj.dealCard = function(array) {
@@ -389,7 +387,7 @@ Bj.moveAnimate = function(element, newParent, callback=''){
   element = $(element);
   newParent= $(newParent);
 
-  element.css('position','relative');
+  element.css({'position': 'relative', 'top': 0, 'left': 0});
 
   var oldOffset = element.offset();
   element.appendTo(newParent);
@@ -412,5 +410,3 @@ Bj.moveAnimate = function(element, newParent, callback=''){
     callback();
   }
 };
-
-// Bj.moveAnimate($('.shoeCards:nth-child(1)'), $('.playerCards'));

@@ -1,17 +1,22 @@
 /** {outline : 1px solid purple; }*/
 
 body {
-  background: rgb(4, 115, 4);
+  /*background: rgb(4, 115, 4);*/
   text-align: center;
+  background-color: grey;
+  font-size: 16px;
 }
 
-/* #477148 */
-
-h1 {
-  font-size: 40px;
-  font-weight: bold;
-  color: gold;
+.megatron {
+  margin: 0 auto;
+  background: url('../images/table.png') no-repeat;
+  background-size: cover;
+  background-size: 100%;
+  text-align: center;
+  background-color: grey;
+  width: 80%;
 }
+
 ul {
   margin: 5px auto;
   text-align: center;
@@ -36,12 +41,7 @@ li {
   padding-top: .25em;
   padding-left: .1em;
   letter-spacing: -.2em;
-}
-
-.shoeCards {
-  position: absolute;
-  top: 0;
-  left: 0;
+  /*font-size: 0.8em;*/
 }
 
 .status {
@@ -49,6 +49,7 @@ li {
   width: 600px;
   font-size: 1.15em;
   font-weight: bold;
+  color: rgba(255, 175, 1, 0.81);
 }
 
 .selection, #deal {
@@ -57,13 +58,17 @@ li {
   cursor: default;
   width: 75px;
   font-weight: bold;
+  border: 2px solid black;
 }
 
 #newGame {
   padding: 2px;
-  margin: 2px;
+  margin-top: 0;
   cursor: default;
-  font-size: 1.5em;
+  font-size: 1em;
+  margin-top: 8vh;
+  color: rgba(255, 175, 1, 0.81);
+  border: 2px rgba(255, 175, 1, 0.81) solid;
 }
 
 #bet {
@@ -83,17 +88,56 @@ main {
 }
 
 .playerCards, .playerCardsSplit, .dealerCards {
-  margin: 5px auto;
+  margin: 5vh auto;
   min-width: 600px;
   min-height: 148px;
+  clear: both;
+}
+
+.playerCards {
+  /*margin-top: 100px;*/
 }
 
 #shoe {
   height: 0px;
   width: 500px;
   position: absolute;
-  left: 150;
+  left: 0;
   top: 0;
+}
+
+#burn {
+  float: right;
+  height: 0px;
+  width: 500px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+/*#countDetails {
+  float: left;
+  margin-left: 225px;
+  text-align: left;
+  border: red 2px solid;
+  border-radius: 10px;
+  padding: 10px;
+  background: white;
+  display: none;
+}*/
+
+.choice {
+  color: black;
+}
+
+.bettingButtons {
+  margin-top: -10px;
+}
+
+.betting, .balance {
+  display: inline-block;
+  color: black;
+  font-weight: bold;
 }
 
 /* SUITS */
