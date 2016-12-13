@@ -1,10 +1,10 @@
 // TO DO
-// - overlap cards and then reduce width when splitting
-// - Add shuffle animation
-// - MAYBE add insurance
+// AUDIO
+// DEALING
 
-
-//  TO DO NEXT - check determineWinner for other functions (hit is done)
+// problems
+// 1. can still hit while in second split hand after stand
+// 2. dealer cards in second hand - way too many
 
 var Bj = Bj || {};
 
@@ -14,33 +14,41 @@ $(function() {
 
 Bj.newGame = function() {
   Bj.balance = 1000;
-  Bj.roundOver = true;
+  Bj.roundOver = Bj.dealerFinished = true;
   Bj.resetCards();
   Bj.makeDeck();
   Bj.shuffleDeck();
+  Bj.addDeckToTable();
   Bj.addButtonsAndListeners();
 };
 
 Bj.deal = function() {
-  if (Bj.roundOver) {
-    Bj.roundOver = Bj.stand = Bj.bust = Bj.blackjack = Bj.double = Bj.split = Bj.bustSplit = false;
-    $('.playerCardsSplit').remove();
+  if (Bj.roundOver && Bj.dealerFinished) {
+    Bj.roundOver = Bj.secondRoundOver = Bj.double = Bj.split = Bj.dealerFinished = false;
     Bj.bet();
-    Bj.resetCards();
-    $('.status').text('Dealing cards...');
-    Bj.dealInitialCards(Bj.checkForBlackjack);
+    console.log(Bj.sufficientFunds);
+    if (Bj.sufficientFunds) {
+      Bj.resetCards();
+      $('.status').text('Dealing cards...');
+      Bj.dealInitialCards(Bj.checkForBlackjack);
+    } else if (!Bj.sufficientFunds) {
+      Bj.roundOver = Bj.dealerFinished = true;
+    }
   } else alert('You must finish the current hand first.');
 };
 
 Bj.gamePlay = function() {
   var cardsDealt = $('.dealerCards .card').length === 2;
+  console.log(Bj.secondRoundOver);
   if (!Bj.roundOver && cardsDealt) {
     Bj.choice(Bj.playerCards);
     if ($(this).text() === 'Hit') Bj.hitLogic(Bj.playerCards);
     else if ($(this).text() === 'Stand') Bj.standLogic(Bj.playerCards);
     else if ($(this).text() === 'Double') Bj.doubleLogic(Bj.playerCards);
     else if ($(this).text() === 'Split') Bj.splitLogic();
-  } else if ((Bj.split && Bj.stand && !Bj.bustSplit && cardsDealt) || (Bj.split && Bj.bust && !Bj.bustSplit && cardsDealt)) {
+  } else if (Bj.roundOver && Bj.split && cardsDealt && !Bj.secondRoundOver) {
+    console.log('accessed');
+    console.log(Bj.secondRoundOver);
     if ($(this).text() === 'Hit') Bj.hitLogic(Bj.playerCardsSplit);
     else if ($(this).text() === 'Stand') Bj.standLogic(Bj.playerCardsSplit);
     else if ($(this).text() === 'Double') {
@@ -96,6 +104,7 @@ Bj.shuffleDeck = function() {
   Bj.shuffledDeck = Bj.deck;
 };
 
+
 Bj.addButtonsAndListeners = function() {
   if ($('.choice').is(':empty')){
     $('.choice').append('<li id="deal">Deal</li>');
@@ -116,22 +125,54 @@ Bj.updateBalance = function(x) {
 
 Bj.bet = function() {
   Bj.betSize = parseInt($('#bet').val());
-  Bj.updateBalance(-Bj.betSize);
+  if (Bj.balance === 0) {
+    $('.status').text('Game over! You are out of funds.');
+    Bj.sufficientFunds = false;
+  } else if (Bj.betSize > Bj.balance) {
+    $('.status').text('Insufficient funds! Reduce your bet size.');
+    Bj.sufficientFunds = false;
+  } else {
+    Bj.sufficientFunds = true;
+    Bj.updateBalance(-Bj.betSize);
+  }
 };
 
 Bj.dealInitialCards = function(callback) {
   var i = 0;
-  var interval = setInterval(dealCards, 1000);
-  function dealCards() {
-    Bj.dealCard(Bj.playerCards);
-    Bj.dealCard(Bj.dealerCards);
+  var interval = setInterval(function() {
+    var x = (i % 2 === 0)? Bj.playerCards : Bj.dealerCards;
+    console.log(i,x);
+    Bj.dealCard(x);
     i++;
-    if (i > 1) {
+    if (i > 3) {
       clearInterval(interval);
       callback();
     }
-  }
+  }, 500);
 };
+
+Bj.addDeckToTable = function() {
+  $(Bj.shuffledDeck).each(function(index, value) {
+    $(Bj.cardHTML(value)).appendTo($('#shoe')).css({'position': 'absolute','top': 0,'left': 0.1*index}).addClass('shoeCards').removeClass('card');
+  });
+};
+
+// Bj.dealCard = function(array) {
+//   Bj.checkDeck();
+//   Bj.newCard = Bj.shuffledDeck.shift();
+//   array.push(Bj.newCard);
+//   Bj.updateCounters();
+//   if (array === Bj.playerCards) {
+//     $(Bj.cardHTML(Bj.newCard)).appendTo($('.playerCards')).hide().fadeIn(300);
+//   } else if (array === Bj.dealerCards) {
+//     if (array.length === 1) {
+//       $(Bj.cardHTML(Bj.newCard, 'holeCard')).appendTo($('.dealerCards')).hide().fadeIn(300);
+//       Bj.hideDealerCard();
+//     } else     $(Bj.cardHTML(Bj.newCard)).appendTo($('.dealerCards')).hide().fadeIn(300);
+//   } else if (array === Bj.playerCardsSplit) {
+//     $(Bj.cardHTML(Bj.newCard)).appendTo($('.playerCardsSplit')).hide().fadeIn(300);
+//   }
+// };
 
 Bj.dealCard = function(array) {
   Bj.checkDeck();
@@ -139,14 +180,14 @@ Bj.dealCard = function(array) {
   array.push(Bj.newCard);
   Bj.updateCounters();
   if (array === Bj.playerCards) {
-    $(Bj.cardHTML(Bj.newCard)).appendTo($('.playerCards')).hide().fadeIn(300);
+    Bj.moveAnimate($('.shoeCards:nth-child(1)'), $('.playerCards'));
   } else if (array === Bj.dealerCards) {
     if (array.length === 1) {
-      $(Bj.cardHTML(Bj.newCard, 'holeCard')).appendTo($('.dealerCards')).hide().fadeIn(300);
-      Bj.hideDealerCard();
-    } else     $(Bj.cardHTML(Bj.newCard)).appendTo($('.dealerCards')).hide().fadeIn(300);
+      $('.shoeCards:nth-child(1)').addClass('holeCard');
+      Bj.moveAnimate($('.shoeCards:nth-child(1)'), $('.dealerCards'), Bj.hideDealerCard);
+    } else Bj.moveAnimate($('.shoeCards:nth-child(1)'), $('.dealerCards'));
   } else if (array === Bj.playerCardsSplit) {
-    $(Bj.cardHTML(Bj.newCard)).appendTo($('.playerCardsSplit')).hide().fadeIn(300);
+    Bj.moveAnimate($('.shoeCards:nth-child(1)'), $('.playerCardsSplit'));
   }
 };
 
@@ -158,8 +199,10 @@ Bj.checkDeck = function() {
 };
 
 Bj.updateCounters = function() {
-  if (Bj.newCard.score >= 2 && Bj.newCard.score < 7) Bj.cardCount++;
-  if (Bj.newCard.score === 10) Bj.cardCount--;
+  if (!(Bj.dealerCards.length === 1 && Bj.playerCards.length === 1)) {
+    if (Bj.newCard.score >= 2 && Bj.newCard.score < 7) Bj.cardCount++;
+    if (Bj.newCard.score === 10) Bj.cardCount--;
+  }
   Bj.cardsInShoe--;
   Bj.decksLeft = (Bj.cardsInShoe/52);
   $('#cardsInShoe').text('Cards left in shoe: ' + Bj.cardsInShoe + ' (' + Bj.decksLeft.toFixed(1) + ' decks).');
@@ -168,7 +211,7 @@ Bj.updateCounters = function() {
 };
 
 Bj.cardHTML = function(x, hiddenClass = '') {
-  return $('<li class="card rank' + x.rank + ' ' + x.suit + ' ' + hiddenClass + '">' + Bj.newCard.rank + '<br />' + x.htmlSuit + '</li>');
+  return $('<li class="card rank' + x.rank + ' ' + x.suit + ' ' +  hiddenClass + '">' + x.rank + '<br />' + x.htmlSuit + '</li>');
 };
 
 Bj.hideDealerCard = function() {
@@ -177,22 +220,19 @@ Bj.hideDealerCard = function() {
 
 Bj.checkForBlackjack = function() {
   if (Bj.sumArray(Bj.dealerCards) === 21 && Bj.sumArray(Bj.playerCards) !== 21) {
-    Bj.blackjack = true;
     Bj.showDealerCard();
     $('.status').text('Unlucky! Dealer has blackjack - you lose this hand.');
-    Bj.roundOver = true;
+    Bj.roundOver = Bj.dealerFinished = true;
   } else if (Bj.sumArray(Bj.dealerCards) === 21 && Bj.sumArray(Bj.playerCards) === 21) {
-    Bj.blackjack = true;
     Bj.showDealerCard();
     $('.status').text('Both you and the dealer have blackjack! It\'s a draw!');
     Bj.updateBalance(Bj.betSize);
-    Bj.roundOver = true;
+    Bj.roundOver = Bj.dealerFinished = true;
   } else if (Bj.sumArray(Bj.dealerCards) !== 21 && Bj.sumArray(Bj.playerCards) === 21) {
-    Bj.blackjack = true;
     Bj.showDealerCard();
     $('.status').text('Blackjack! You win this hand.');
     Bj.updateBalance(2.5 * Bj.betSize);
-    Bj.roundOver = true;
+    Bj.roundOver = Bj.dealerFinished = true;
   }
   Bj.choice(Bj.playerCards);
 };
@@ -202,7 +242,7 @@ Bj.checkForBlackjack = function() {
 Bj.choice = function(array, round = 'first') {
   if (Bj.split) {
     $('.status').text('Your ' + round + ' cards are ' + Bj.returnCards(array) + ' - a total of ' + Bj.sumArray(array) + '. What would you like to do?');
-  } else if (!Bj.blackjack) {
+  } else if (!Bj.roundOver) {
     $('.status').text('Your cards are ' + Bj.returnCards(array) + ' - a total of ' + Bj.sumArray(array) + '. What would you like to do?');
   }
 };
@@ -240,16 +280,14 @@ Bj.hitLogic = function(array) {
 };
 
 Bj.busted = function(array) {
-  console.log('reached');
   $('.status').text('BUST! Your cards are ' + Bj.returnCards(array) + ' - a total of ' + Bj.sumArray(array) + '.');
-  if (array === Bj.playerCards) {
-    Bj.bust = true;
-    if  (!Bj.split) {
-      Bj.showDealerCard();
-      Bj.roundOver = true;
-    } else if (Bj.split) Bj.choice(Bj.playerCardsSplit, 'second');
-  } else {
-    Bj.bustSplit = true;
+  Bj.roundOver = Bj.dealerFinished = true;
+  if (array === Bj.playerCards && !Bj.split) {
+    Bj.showDealerCard();
+  } else if (array === Bj.playerCards && Bj.split) {
+    Bj.choice(Bj.playerCardsSplit, 'second');
+  } else if (array === Bj.playerCardsSplit) {
+    Bj.secondRoundOver === true;
     Bj.dealerPlays(Bj.determineWinner);
   }
 };
@@ -260,10 +298,11 @@ Bj.dealerPlays = function(callback) {
   if (i < 17) var interval = setInterval(dealCards, 1000);
   else if (i >= 17) {
     if (!Bj.split) callback(Bj.playerCards);
-    else if (Bj.split && (Bj.bust || Bj.stand)) {
+    else if (Bj.split && Bj.roundOver) {
       callback(Bj.playerCards, 'First hand: ');
       callback(Bj.playerCardsSplit, '<br />Second hand: ');
     }
+    Bj.dealerFinished = true;
   }
   function dealCards() {
     Bj.dealCard(Bj.dealerCards);
@@ -271,10 +310,11 @@ Bj.dealerPlays = function(callback) {
     if (i >= 17) {
       clearInterval(interval);
       if (!Bj.split) callback(Bj.playerCards);
-      else if (Bj.split && (Bj.bust || Bj.stand)) {
+      else if (Bj.split && Bj.roundOver) {
         callback(Bj.playerCards, 'First hand: ');
         callback(Bj.playerCardsSplit, '<br />Second hand: ');
       }
+      Bj.dealerFinished = true;
     }
   }
 };
@@ -282,6 +322,10 @@ Bj.dealerPlays = function(callback) {
 Bj.showDealerCard = function() {
   $('.holeCard').css('color', '');
   $('.holeCard').removeClass('holeCard');
+  if (Bj.dealerCards[0].score >= 2 && Bj.dealerCards[0].score < 7) Bj.cardCount++;
+  if (Bj.dealerCards[0] === 10) Bj.cardCount--;
+  $('#count').text('Card count: ' + Bj.cardCount);
+  $('#trueCount').text('True count: ' + (Bj.cardCount/Bj.decksLeft).toFixed(1));
 };
 
 Bj.determineWinner = function(array, hand = '') {
@@ -297,38 +341,76 @@ Bj.determineWinner = function(array, hand = '') {
   } else {
     $('.status').append(hand + 'Unlucky! You lose this hand. The dealer\'s ' + Bj.sumArray(Bj.dealerCards) + ' beats your ' + Bj.sumArray(array) + '. ');
   }
-  Bj.roundOver = true;
 };
 
 Bj.standLogic = function(array) {
-  Bj.stand = true;
-  if (Bj.split && array === Bj.playerCards) {
+  Bj.roundOver = true;
+  if (!Bj.split) {
+    Bj.dealerPlays(Bj.determineWinner);
+  } else if (Bj.split && array === Bj.playerCards) {
     Bj.choice(Bj.playerCardsSplit, 'second');
-  } else {
+  } else if (Bj.split && array === Bj.playerCardsSplit) {
+    Bj.secondRoundOver = true;
     Bj.dealerPlays(Bj.determineWinner);
   }
 };
 
 Bj.doubleLogic = function(array) {
-  Bj.updateBalance(-Bj.betSize);
-  Bj.double = true;
-  Bj.dealCard(array);
-  if (Bj.sumArray(array) > 21) {
-    Bj.busted(array);
-  } else {
-    $('.status').text('Your cards are ' + Bj.returnCards(array) + ' - a total of ' + Bj.sumArray(array) + '...');
-    Bj.standLogic(array);
-  }
+  if (Bj.betSize <= Bj.balance) {
+    Bj.updateBalance(-Bj.betSize);
+    Bj.double = Bj.roundOver = true;
+    if (array === Bj.playerCardsSplit) Bj.secondRoundOver = true;
+    Bj.dealCard(array);
+    if (Bj.sumArray(array) > 21) {
+      Bj.busted(array);
+    } else {
+      $('.status').text('Your cards are ' + Bj.returnCards(array) + ' - a total of ' + Bj.sumArray(array) + '...');
+      Bj.standLogic(array);
+    }
+  } else $('.status').text('Insufficient funds to double your bet');
 };
 
 Bj.splitLogic = function() {
   if ((Bj.playerCards[0].score === Bj.playerCards[1].score) && Bj.playerCards.length === 2) {
-    Bj.split = true;
-    Bj.updateBalance(-Bj.betSize);
-    $('.playerCards').after('<ul class="playerCardsSplit" id="splitBoard"></ul>');
-    $('.playerCards .card').eq(1).appendTo('#splitBoard');
-    Bj.playerCardsSplit.push(Bj.playerCards.pop());
-    Bj.dealCard(Bj.playerCards), Bj.dealCard(Bj.playerCardsSplit);
-    Bj.choice(Bj.playerCards, 'first');
+    if (Bj.betSize <= Bj.balance) {
+      Bj.split = true;
+      Bj.updateBalance(-Bj.betSize);
+      $('.playerCards').after('<ul class="playerCardsSplit" id="splitBoard"></ul>');
+      $('.playerCards .card').eq(1).appendTo('#splitBoard');
+      Bj.playerCardsSplit.push(Bj.playerCards.pop());
+      Bj.dealCard(Bj.playerCards), Bj.dealCard(Bj.playerCardsSplit);
+      Bj.choice(Bj.playerCards, 'first');
+    } else $('.status').text('Insufficient funds to split');
   }
 };
+
+Bj.moveAnimate = function(element, newParent, callback=''){
+  // Allow passing in either a jQuery object or selector
+  element = $(element);
+  newParent= $(newParent);
+
+  element.css('position','relative');
+
+  var oldOffset = element.offset();
+  element.appendTo(newParent);
+  var newOffset = element.offset();
+
+  var temp = element.clone().appendTo('body');
+  temp.css({
+    'position': 'absolute',
+    'left': oldOffset.left,
+    'top': oldOffset.top,
+    'z-index': 500
+  });
+  element.hide();
+  temp.animate({'top': newOffset.top, 'left': newOffset.left}, 'slow', function(){
+    element.show();
+    temp.remove();
+  });
+  element.removeClass('shoeCards').addClass('card');
+  if (callback !== '') {
+    callback();
+  }
+};
+
+// Bj.moveAnimate($('.shoeCards:nth-child(1)'), $('.playerCards'));

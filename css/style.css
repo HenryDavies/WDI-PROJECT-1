@@ -1,16 +1,18 @@
 /** {outline : 1px solid purple; }*/
 
 body {
-  background: #477148;
+  background: rgb(4, 115, 4);
   text-align: center;
 }
+
+/* #477148 */
 
 h1 {
   font-size: 40px;
   font-weight: bold;
+  color: gold;
 }
 ul {
-  min-width: 600px;
   margin: 5px auto;
   text-align: center;
   list-style: none;
@@ -21,7 +23,7 @@ li {
   border: 2px solid black;
 }
 
-.card {
+.card, .shoeCards {
   height: 8.85em;
   width: 6.4em;
   background: #fff url('../images/card-set.png') no-repeat;
@@ -36,9 +38,17 @@ li {
   letter-spacing: -.2em;
 }
 
+.shoeCards {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .status {
   margin: 0 auto;
   width: 600px;
+  font-size: 1.15em;
+  font-weight: bold;
 }
 
 .selection, #deal {
@@ -46,12 +56,14 @@ li {
   margin: 2px;
   cursor: default;
   width: 75px;
+  font-weight: bold;
 }
 
 #newGame {
   padding: 2px;
   margin: 2px;
   cursor: default;
+  font-size: 1.5em;
 }
 
 #bet {
@@ -72,6 +84,16 @@ main {
 
 .playerCards, .playerCardsSplit, .dealerCards {
   margin: 5px auto;
+  min-width: 600px;
+  min-height: 148px;
+}
+
+#shoe {
+  height: 0px;
+  width: 500px;
+  position: absolute;
+  left: 150;
+  top: 0;
 }
 
 /* SUITS */
@@ -95,8 +117,9 @@ main {
 .rankQ  { background-position-x: -71.5em; }
 .rankK  { background-position-x: -78em; }
 
-/* Hidden dealer card */
-.holeCard {
+/* Hidden cards */
+.holeCard, .shoeCards {
   background: url('https://s-media-cache-ak0.pinimg.com/236x/a4/77/8a/a4778a31909f959501cc180b8874d164.jpg') no-repeat;
   background-size: cover;
+  color: transparent;
 }
