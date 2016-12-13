@@ -7,6 +7,7 @@ $(function() {
 
 Bj.newGame = function() {
   Bj.balance = 1000;
+  Bj.updateBalance(0);
   Bj.roundOver = Bj.dealerFinished = true;
   Bj.resetCards();
   Bj.makeDeck();
