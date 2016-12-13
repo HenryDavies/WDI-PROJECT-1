@@ -94,6 +94,7 @@ Bj.shuffleDeck = function() {
 };
 
 Bj.addDeckToTable = function() {
+  $('#shoe').empty();
   $(Bj.shuffledDeck).each(function(index, value) {
     $(Bj.cardHTML(value)).appendTo($('#shoe')).css({'position': 'absolute','top': 35+index/50,'left': 87+index/50}).addClass('shoeCards').removeClass('card');
   });
