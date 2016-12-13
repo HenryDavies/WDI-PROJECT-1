@@ -1,4 +1,4 @@
-/** {outline : 1px solid purple; }*/
+/** {outline: 1px solid purple; }*/
 
 body {
   /*background: rgb(4, 115, 4);*/
@@ -8,13 +8,14 @@ body {
 }
 
 .megatron {
+  position: relative;
   margin: 0 auto;
   background: url('../images/table.png') no-repeat;
-  background-size: cover;
-  background-size: 100%;
+  background-size: contain;
   text-align: center;
   background-color: grey;
-  width: 80%;
+  width: 1200px;
+  height: 650px;
 }
 
 ul {
@@ -45,11 +46,15 @@ li {
 }
 
 .status {
-  margin: 0 auto;
-  width: 600px;
-  font-size: 1.15em;
+  padding: 2px;
+  margin: -25px auto 0;
+  width: 470px;
+  font-size: 1.1em;
   font-weight: bold;
   color: rgba(255, 175, 1, 0.81);
+  background: #095807;
+  border: 2px solid white;
+  border-radius: 5px;
 }
 
 .selection, #deal {
@@ -58,21 +63,25 @@ li {
   cursor: default;
   width: 75px;
   font-weight: bold;
-  border: 2px solid black;
+  border: 2px solid white;
+  border-radius: 5px;
 }
 
 #newGame {
-  padding: 2px;
-  margin-top: 0;
+  padding: 4px;
+  margin-top: 40px;
   cursor: default;
-  font-size: 1em;
-  margin-top: 8vh;
+  font-size: 1.25em;
   color: rgba(255, 175, 1, 0.81);
-  border: 2px rgba(255, 175, 1, 0.81) solid;
+  border: 2px white solid;
+  border-radius: 5px;
+  font-weight: bold;
 }
 
 #bet {
   width: 50px;
+  border-radius: 5px;
+  font-weight: bold;
 }
 
 #betLi {
@@ -80,7 +89,7 @@ li {
 }
 
 main {
-  min-height: 320px;
+  height: 375px;
 }
 
 .playerCards, .playerCardsSplit {
@@ -88,14 +97,9 @@ main {
 }
 
 .playerCards, .playerCardsSplit, .dealerCards {
-  margin: 5vh auto;
-  min-width: 600px;
-  min-height: 148px;
-  clear: both;
-}
-
-.playerCards {
-  /*margin-top: 100px;*/
+  margin: 25px auto;
+  width: 590px;
+  height: 148px;
 }
 
 #shoe {
@@ -106,8 +110,7 @@ main {
   top: 0;
 }
 
-#burn {
-  float: right;
+#counter {
   height: 0px;
   width: 500px;
   position: absolute;
@@ -115,28 +118,49 @@ main {
   top: 0;
 }
 
-/*#countDetails {
-  float: left;
-  margin-left: 225px;
-  text-align: left;
-  border: red 2px solid;
-  border-radius: 10px;
-  padding: 10px;
-  background: white;
-  display: none;
-}*/
+#counter li {
+  position: absolute;
+  top: 40px;
+  right: 95px;
+  border-radius: 100%;
+  height: 100px;
+  width: 100px;
+  font-size: 16px;
+  font-weight: bold;
+  background: grey;
+  cursor: default;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
 
 .choice {
-  color: black;
+  color: white;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
-.bettingButtons {
-  margin-top: -10px;
+.bottomButtons {
+  bottom: 50px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  position: absolute;
+
 }
 
-.betting, .balance {
+.betting {
+  color: white;
   display: inline-block;
-  color: black;
+  margin-top: 3px;
+  font-weight: bold;
+}
+
+.balance {
+  display: inline-block;
+  color: white;
+  margin-top: 3px;
   font-weight: bold;
 }
 
