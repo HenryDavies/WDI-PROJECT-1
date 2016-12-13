@@ -14,6 +14,10 @@ Bj.newGame = function() {
   Bj.shuffleDeck();
   Bj.addDeckToTable();
   Bj.addButtonsAndListeners();
+  if (Bj.showCount) {
+    if (Bj.cardCount) $('#trueCount p').text((Bj.cardCount/Bj.decksLeft).toFixed(1));
+    else $('#trueCount p').text(0);
+  }
 };
 
 Bj.deal = function() {
@@ -187,8 +191,15 @@ Bj.checkDeck = function() {
 
 Bj.updateCounters = function() {
   if (!(Bj.dealerCards.length === 1 && Bj.playerCards.length === 1)) {
-    if (Bj.newCard.score >= 2 && Bj.newCard.score < 7) Bj.cardCount++;
-    if (Bj.newCard.score === 10 || Bj.newCard.score === 11) Bj.cardCount--;
+    console.log(Bj.newCard);
+    if (Bj.newCard.score >= 2 && Bj.newCard.score < 7) {
+      Bj.cardCount++;
+      console.log(Bj.cardCount);
+    }
+    if (Bj.newCard.score === 10 || Bj.newCard.score === 1) {
+      Bj.cardCount--;
+      console.log(Bj.cardCount);
+    }
   }
   Bj.cardsInShoe--;
   Bj.decksLeft = (Bj.cardsInShoe/52);
