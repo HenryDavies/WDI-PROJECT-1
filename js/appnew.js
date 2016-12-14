@@ -388,7 +388,6 @@ Bj.splitLogic = function() {
 };
 
 Bj.moveAnimate = function(element, newParent, callback=''){
-  // Allow passing in either a jQuery object or selector
   element = $(element);
   newParent= $(newParent);
 
