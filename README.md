@@ -1,8 +1,7 @@
 # Blackjack
 
-picture 1
 
-picture 2
+<img width="1440" alt="screen shot 2017-02-05 at 15 56 36" src="https://cloud.githubusercontent.com/assets/22742327/22627482/ca252c9a-ebbb-11e6-88a2-1bbb54f0666d.png">
 
 ## Overview
 Blackjack was created as my first project for a 12-week Web Development Immersive course at General Assembly in London. It was built using basic HTML, CSS and JavaScript/jQuery. 
