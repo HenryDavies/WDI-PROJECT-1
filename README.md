@@ -32,7 +32,7 @@ Blackjack, also known as 21, is a casino-based game where the player plays again
 - Aces can be worth 1 or 11 - this is dealt with by treating aces as 11, and subtracting 10 per ace as necessary if the player/dealer's score is above 21
 - The code also contains card counting logic, based upon the [high-low counting strategy](https://wizardofodds.com/games/blackjack/card-counting/high-low/). However I only got as far showing this count (or hiding, based upon a toggle) on the board
 
-### Styling
+#### Styling
 
 - The main focus of the website is an image of a Blackjack table
 - The colours of the gameplay buttons were chosen to match the table
